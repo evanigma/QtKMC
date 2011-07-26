@@ -1,29 +1,35 @@
 #include "MainWindow.h"
+#include "kmc.h"
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
+    initKMC();
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
     QLabel* fileLabel = new QLabel("Filename:");
-    QLineEdit* fileDialog = new QLineEdit();
+    fileDialog = new QLineEdit();
     
-    QSpinBox* startBox = new QSpinBox();
+    startBox = new QSpinBox();
     QLabel* startText = new QLabel("Start Frame:");
-    QSpinBox* endBox = new QSpinBox();
+    endBox = new QSpinBox();
     QLabel* endText = new QLabel("End Frame:");
     
     QCheckBox* vidCheck = new QCheckBox("Export Video");
     QLabel* fpsText = new QLabel("fps:");
     QSpinBox* fpsBox = new QSpinBox();
     fpsBox->setMinimum(0);
+    fpsBox->setValue(fps);
     
     QPushButton* saveBtn = new QPushButton(tr("Save"), this);
 
-    startBox->setRange(0,100);
-    endBox->setRange(0,100);
+    startBox->setRange(1,totalFrames);
+    endBox->setRange(1,totalFrames);
+    endBox->setValue(totalFrames);
     vidCheck->setCheckState(Qt::Checked);
+    
+    saveProgress = new QProgressBar();
 
-    connect(saveBtn, SIGNAL(clicked()), qApp, SLOT(quit()));
+    connect(saveBtn, SIGNAL(clicked()), this, SLOT(save()));
 
     QFormLayout* layout = new QFormLayout;
     QHBoxLayout* fileLayout = new QHBoxLayout;
@@ -50,5 +56,41 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     
     layout->addRow(vidLayout);
     layout->addRow(saveBtn);
+    layout->addRow(saveProgress);
     setLayout(layout);
+}
+
+void MainWindow::save()
+{
+    start_frame = startBox->value()-1;
+    end_frame = endBox->value()-1;
+    
+    strcpy((char*)&filenamebase,(char*)fileDialog->text().toStdString().c_str());
+    
+    QMessageBox error;
+    error.setText("Start Frame must not be greater than End Frame.\nSwitching indices.");
+    if (start_frame > end_frame)
+    {
+        error.exec();
+        startBox->setValue(end_frame+1);
+        endBox->setValue(start_frame+1);
+    }
+    else
+    {
+        saveProgress->reset();
+        saveProgress->setRange(start_frame, end_frame);
+        for (framenumber=startBox->value()-1; framenumber<=endBox->value()-1; framenumber++)
+        {
+            saveProgress->setValue(framenumber);
+            start_frame = framenumber;
+            end_frame = framenumber;
+            read_multiple_frames();
+        }
+    }
+}
+
+void MainWindow::initKMC()
+{
+    init("/dev/sg3");
+    //read_multiple_frames();
 }
