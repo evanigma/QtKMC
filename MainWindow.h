@@ -1,15 +1,17 @@
 #pragma once
 #include <QApplication>
-#include <QWidget>
+#include <QCheckBox>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSpinBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QCheckBox>
+#include <QStyle>
+#include <QWidget>
 
 class MainWindow : public QWidget
 {
@@ -19,13 +21,20 @@ public:
 
 public slots:
     void save();
+    void fpsStateChange();
+    void setDirectory();
     
 private:
     void initKMC();
     
-    QLineEdit* fileDialog;    
+    QString home;    
+    QLineEdit* dirText;
+    QPushButton* dirBtn; 
     QSpinBox* startBox;
     QSpinBox* endBox;
+    QCheckBox* vidCheck;
+    QSpinBox* fpsBox;
+    QLabel* fpsText;
     QProgressBar* saveProgress;
     QMessageBox error;
 };

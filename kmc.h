@@ -8,5 +8,6 @@ extern "C" {
     
     //kmc_scsi
     int hsize, vsize, fps, totalFrames;
+    int year, month, date, time_hour, time_minute;
     int kmc_dev_fd(char* device);
 }

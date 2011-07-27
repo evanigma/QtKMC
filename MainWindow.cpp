@@ -3,21 +3,23 @@
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
-    error.setIcon(QMessageBox::Critical);
+    error.setIcon(QMessageBox::Warning);
+    home = QDir::home().absolutePath();
     initKMC();
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
-    QLabel* fileLabel = new QLabel("Filename:");
-    fileDialog = new QLineEdit();
+    QLabel* dirLabel = new QLabel("Directory:");
+    dirText = new QLineEdit(home+"/Desktop/");
+    dirBtn = new QPushButton(style()->standardIcon(QStyle::SP_DirIcon),"");
     
     startBox = new QSpinBox();
     QLabel* startText = new QLabel("Start Frame:");
     endBox = new QSpinBox();
     QLabel* endText = new QLabel("End Frame:");
     
-    QCheckBox* vidCheck = new QCheckBox("Export Video");
-    QLabel* fpsText = new QLabel("fps:");
-    QSpinBox* fpsBox = new QSpinBox();
+    vidCheck = new QCheckBox("Export Video");
+    fpsText = new QLabel("fps:");
+    fpsBox = new QSpinBox();
     fpsBox->setMinimum(0);
     fpsBox->setValue(fps);
     
@@ -31,11 +33,14 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     saveProgress = new QProgressBar();
 
     connect(saveBtn, SIGNAL(clicked()), this, SLOT(save()));
+    connect(vidCheck, SIGNAL(stateChanged(int)), this, SLOT(fpsStateChange()));
+    connect(dirBtn, SIGNAL(clicked()), this, SLOT(setDirectory()));
 
     QFormLayout* layout = new QFormLayout;
     QHBoxLayout* fileLayout = new QHBoxLayout;
-    fileLayout->addWidget(fileLabel);
-    fileLayout->addWidget(fileDialog);
+    fileLayout->addWidget(dirLabel);
+    fileLayout->addWidget(dirText);
+    fileLayout->addWidget(dirBtn);
     
     QHBoxLayout* frameBoxLayout = new QHBoxLayout;
     frameBoxLayout->addWidget(startText);
@@ -43,6 +48,7 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     frameBoxLayout->addStretch();
     frameBoxLayout->addWidget(endText);
     frameBoxLayout->addWidget(endBox);
+    
     
     layout->addRow(infoText);
     layout->addRow(fileLayout);
@@ -66,7 +72,7 @@ void MainWindow::save()
     start_frame = startBox->value()-1;
     end_frame = endBox->value()-1;
     
-    strcpy((char*)&filenamebase,(char*)fileDialog->text().toStdString().c_str());
+    strcpy((char*)&filenamebase,(char*)dirText->text().toStdString().c_str());
     
     error.setText("Start Frame must not be greater than End Frame.\nSwitching indices.");
     if (start_frame > end_frame)
@@ -89,12 +95,25 @@ void MainWindow::save()
     }
 }
 
+void MainWindow::fpsStateChange()
+{
+    fpsBox->setEnabled(!fpsBox->isEnabled());
+    fpsText->setEnabled(!fpsText->isEnabled());
+}
+
+void MainWindow::setDirectory()
+{
+    dirText->setText(QFileDialog::getExistingDirectory(this,
+     tr("Choose Output Directory"), home));
+}
+
 void MainWindow::initKMC()
 {
     if (kmc_dev_fd("/dev/sg3") < 0)
     {
         error.setText("Device not found.\n\n You must record something before the computer is turned on for the device to be recognized. Try a reboot.");
         error.exec();
+        setEnabled(false);
         return;
     }
     init("/dev/sg3");
