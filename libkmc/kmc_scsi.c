@@ -85,6 +85,10 @@ unsigned char g_image[MAX_IM_HEIGHT*MAX_IM_WIDTH];    /* green image data */
 unsigned char b_image[MAX_IM_HEIGHT*MAX_IM_WIDTH];    /* blue image data */
 //unsigned char imageout[MAX_IM_HEIGHT*MAX_IM_WIDTH*3]; /* RGB for GTK+ Pixmap */
 
+int kmc_dev_fd(char* device)
+{
+    return open(device, O_RDWR);
+}
 
 int kmc_open_device(char *device_name){
 //printf("Opening device: %s\n",device_name);

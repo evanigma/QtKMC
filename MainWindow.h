@@ -27,4 +27,5 @@ private:
     QSpinBox* startBox;
     QSpinBox* endBox;
     QProgressBar* saveProgress;
+    QMessageBox error;
 };

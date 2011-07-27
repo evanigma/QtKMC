@@ -3,6 +3,7 @@
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
+    error.setIcon(QMessageBox::Critical);
     initKMC();
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
@@ -67,7 +68,6 @@ void MainWindow::save()
     
     strcpy((char*)&filenamebase,(char*)fileDialog->text().toStdString().c_str());
     
-    QMessageBox error;
     error.setText("Start Frame must not be greater than End Frame.\nSwitching indices.");
     if (start_frame > end_frame)
     {
@@ -91,6 +91,11 @@ void MainWindow::save()
 
 void MainWindow::initKMC()
 {
+    if (kmc_dev_fd("/dev/sg3") < 0)
+    {
+        error.setText("Device not found.\n\n You must record something before the computer is turned on for the device to be recognized. Try a reboot.");
+        error.exec();
+        return;
+    }
     init("/dev/sg3");
-    //read_multiple_frames();
 }
