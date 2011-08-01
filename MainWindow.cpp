@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "kmc.h"
+#include <stdio.h>
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
@@ -9,7 +10,10 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
     QLabel* dirLabel = new QLabel("Directory:");
-    dirText = new QLineEdit(home+"/Desktop/");
+    
+    char* timestamp = new char[20];
+    sprintf(timestamp,"%02d-%02d-%d_%02d:%02d",month,date,year%1000,time_hour,time_minute);
+    dirText = new QLineEdit(home+"/Desktop/"+timestamp+"/");
     dirBtn = new QPushButton(style()->standardIcon(QStyle::SP_DirIcon),"");
     
     startBox = new QSpinBox();
@@ -20,7 +24,7 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     vidCheck = new QCheckBox("Export Video");
     fpsText = new QLabel("fps:");
     fpsBox = new QSpinBox();
-    fpsBox->setMinimum(0);
+    fpsBox->setRange(0,10000);
     fpsBox->setValue(fps);
     
     QPushButton* saveBtn = new QPushButton(tr("Save"), this);
@@ -69,6 +73,11 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 
 void MainWindow::save()
 {
+    QDir().mkdir(dirText->text());
+    
+    if (!dirText->text().endsWith("/"))
+        dirText->setText(dirText->text().append("/"));
+        
     start_frame = startBox->value()-1;
     end_frame = endBox->value()-1;
     
@@ -88,9 +97,7 @@ void MainWindow::save()
         for (framenumber=startBox->value()-1; framenumber<=endBox->value()-1; framenumber++)
         {
             saveProgress->setValue(framenumber);
-            start_frame = framenumber;
-            end_frame = framenumber;
-            read_multiple_frames();
+            read_frame(framenumber-(startBox->value()-1));
         }
     }
 }

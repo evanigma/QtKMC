@@ -5,6 +5,7 @@ extern "C" {
     
     void init(char* device);
     int read_multiple_frames();
+    int read_frame(int number);
     
     //kmc_scsi
     int hsize, vsize, fps, totalFrames;

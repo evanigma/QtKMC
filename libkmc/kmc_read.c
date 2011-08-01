@@ -464,6 +464,25 @@ int read_multiple_frames()
     return 0;
 }
 
+int read_frame(int number)
+{
+	determine_image_format();
+
+	char file[100];	
+	sprintf(file,"%s%05d.%s",filenamebase,number,imageformat);
+	
+	kmc_get_image(framenumber, file, imageformat, trueccdcolor);
+
+}
+
+int read_one_frame()
+{
+
+	determine_image_format();     
+	kmc_get_image(framenumber, filenamebase, imageformat, trueccdcolor);
+
+}
+
 
 /* Determines the format that the image should be saved as.
  * Default depends upon the camera:
@@ -489,14 +508,6 @@ int determine_image_format()
 	if (color) sprintf(imageformat,"ppm");
 	else  sprintf(imageformat,"pgm");
 	}
-}
-
-int read_one_frame()
-{
-
-	determine_image_format();     
-	kmc_get_image(framenumber, filenamebase, imageformat, trueccdcolor);
-
 }
 
 void init(char* device)
