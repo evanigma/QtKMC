@@ -10,8 +10,10 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QStyle>
 #include <QWidget>
+#include <string>
 
 class MainWindow : public QWidget
 {
@@ -20,6 +22,7 @@ public:
     MainWindow(QWidget* parent = 0);
 
 public slots:
+    void exportVideo();
     void save();
     void fpsStateChange();
     void setDirectory();
@@ -27,13 +30,15 @@ public slots:
 private:
     void initKMC();
     
+    char directoryName[512];
+    
     QString home;    
     QLineEdit* dirText;
     QPushButton* dirBtn; 
     QSpinBox* startBox;
     QSpinBox* endBox;
     QCheckBox* vidCheck;
-    QSpinBox* fpsBox;
+    QDoubleSpinBox* timeFactorBox;
     QLabel* fpsText;
     QProgressBar* saveProgress;
     QMessageBox error;

@@ -1,11 +1,16 @@
 #include "MainWindow.h"
 #include "kmc.h"
 #include <stdio.h>
+using namespace std;
+
+#define MPEG_FRAME_RATE 30.0
+#define BIT_RATE "1024k "
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
     error.setIcon(QMessageBox::Warning);
     home = QDir::home().absolutePath();
+    system("export PATH=$PATH:`pwd`");
     initKMC();
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
@@ -23,9 +28,10 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     
     vidCheck = new QCheckBox("Export Video");
     fpsText = new QLabel("fps:");
-    fpsBox = new QSpinBox();
-    fpsBox->setRange(0,10000);
-    fpsBox->setValue(fps);
+    timeFactorBox = new QDoubleSpinBox();
+    timeFactorBox->setRange(MPEG_FRAME_RATE/double(fps),10000);
+    timeFactorBox->setValue(1);
+    timeFactorBox->setSingleStep(MPEG_FRAME_RATE/double(fps));
     
     QPushButton* saveBtn = new QPushButton(tr("Save"), this);
 
@@ -35,6 +41,7 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     vidCheck->setCheckState(Qt::Checked);
     
     saveProgress = new QProgressBar();
+    //saveProgress->setFormat("%v/%m"); //(%v doesn't do what you would think it does.)
 
     connect(saveBtn, SIGNAL(clicked()), this, SLOT(save()));
     connect(vidCheck, SIGNAL(stateChanged(int)), this, SLOT(fpsStateChange()));
@@ -62,13 +69,26 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     vidLayout->addWidget(vidCheck);
     vidLayout->addStretch();
     vidLayout->addWidget(fpsText);
-    vidLayout->addWidget(fpsBox);
+    vidLayout->addWidget(timeFactorBox);
     
     
     layout->addRow(vidLayout);
     layout->addRow(saveBtn);
     layout->addRow(saveProgress);
     setLayout(layout);
+}
+
+void MainWindow::exportVideo()
+{
+    string systemMessage;
+    int frameSkip = int(timeFactorBox->value()*fps/MPEG_FRAME_RATE);
+    
+    systemMessage = "cd "+string(directoryName);
+    system(systemMessage.c_str());
+    
+    systemMessage = "echo videos.sh";// + itoa(frameSkip);
+
+    system(systemMessage.c_str()); 
 }
 
 void MainWindow::save()
@@ -81,7 +101,8 @@ void MainWindow::save()
     start_frame = startBox->value()-1;
     end_frame = endBox->value()-1;
     
-    strcpy((char*)&filenamebase,(char*)dirText->text().toStdString().c_str());
+    strcpy(directoryName, (char*)dirText->text().toStdString().c_str());
+    strcpy((char*)&filenamebase, directoryName);
     
     error.setText("Start Frame must not be greater than End Frame.\nSwitching indices.");
     if (start_frame > end_frame)
@@ -93,18 +114,20 @@ void MainWindow::save()
     else
     {
         saveProgress->reset();
-        saveProgress->setRange(start_frame, end_frame);
+        saveProgress->setRange(start_frame, end_frame+1);
         for (framenumber=startBox->value()-1; framenumber<=endBox->value()-1; framenumber++)
         {
-            saveProgress->setValue(framenumber);
+            saveProgress->setValue(framenumber+1);
             read_frame(framenumber-(startBox->value()-1));
         }
+        if (vidCheck->isChecked())
+            exportVideo();
     }
 }
 
 void MainWindow::fpsStateChange()
 {
-    fpsBox->setEnabled(!fpsBox->isEnabled());
+    timeFactorBox->setEnabled(!timeFactorBox->isEnabled());
     fpsText->setEnabled(!fpsText->isEnabled());
 }
 
