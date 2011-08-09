@@ -3,15 +3,16 @@
 #include <stdio.h>
 using namespace std;
 
-#define MPEG_FRAME_RATE 30.0
-#define BIT_RATE "1024k "
-
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
     error.setIcon(QMessageBox::Warning);
     home = QDir::home().absolutePath();
-    system("export PATH=$PATH:`pwd`");
+   
+    //system("export PATH=$PATH:`pwd`"); //Doesn't Work
     initKMC();
+    
+    MPEG_FRAME_RATE = (fps % 30 == 0) ? 30 : 25;
+    
     //setFixedSize(350,150);
     QLabel* infoText = new QLabel("Kodak Motion Corder");
     QLabel* dirLabel = new QLabel("Directory:");
@@ -80,15 +81,11 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 
 void MainWindow::exportVideo()
 {
-    string systemMessage;
     int frameSkip = int(timeFactorBox->value()*fps/MPEG_FRAME_RATE);
+    char frameMessage[128];
+    sprintf(frameMessage, "videos.sh %s %d %d", directoryName, frameSkip, MPEG_FRAME_RATE);
     
-    systemMessage = "cd "+string(directoryName);
-    system(systemMessage.c_str());
-    
-    systemMessage = "echo videos.sh";// + itoa(frameSkip);
-
-    system(systemMessage.c_str()); 
+    system(frameMessage); 
 }
 
 void MainWindow::save()

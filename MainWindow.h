@@ -30,6 +30,7 @@ public slots:
 private:
     void initKMC();
     
+    int MPEG_FRAME_RATE;    
     char directoryName[512];
     
     QString home;    

@@ -1,38 +1,33 @@
 #!/bin/bash
 
-wd="`pwd | sed 's:.*/::'`"
-numImages=`ls *.pgm | wc -l`
+# 1: Working Directory 2: Frame Increment 3: Frame rate
 
-a=1
+if [[ $# -ne 3 ]]; then
+    echo "videos.sh: invalid number of arguments"
+    echo "Usage: videos.sh working_directory frame_increment frame_rate"
+    exit
+fi 
 
-echo "Renumbering Images"
+cd $1
 
+wd="`pwd | sed 's:.*/::'`"      #last folder in working directory
+numImages=`ls *.pgm | wc -l`    #index of last image in directory
+let numImages=$numImages-1      
+
+mkdir tmp
+
+for x in `seq -f %05g 0 $2 $numImages`  #skip frames to match desired
+    do ln $x.pgm tmp/                   #frame rate of movie
+done
+
+cd tmp
+
+a=0                                     #rename images sequentially
 for x in *.pgm
-	do echo -ne "\r$a/$numImages"
-    mv $x `printf %04d $a`.pgm
+    do mv $x `printf %05d $a`.pgm 2> /dev/null
     let a=$a+1
 done
 
-echo -e "\n\nCreating 30 fps video"
-
-ffmpeg -r 30 -i %04d.pgm -b 1024k "../$wd.mpg" 1> /dev/null 2> /dev/null
-
-mkdir real
-
-for x in `seq -f %04g 1 20 $numImages`
-    do cp $x.pgm real/
-done
-
-cd real
-
-a=1
-
-for x in *.pgm
-    do mv $x `printf %04d $a`.pgm 2> /dev/null
-    let a=$a+1
-done
-
-echo -e "\nCreating real time video\n\t(Assumes 500fps video)"
-
-ffmpeg -r 30 -i %04d.pgm -b 1024k "../../$wd""_real.mpg" 1> /dev/null 2> /dev/null
+#output video
+ffmpeg -r $3 -i %05d.pgm -b 1024k "../../$wd.mpg" 1> /dev/null 2> /dev/null
 
