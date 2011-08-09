@@ -8,6 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 CFLAGS += -g
 
+RESOURCES += QtKMC.qrc
 # Input
 HEADERS += MainWindow.h kmc.h
 SOURCES += main.cpp MainWindow.cpp

@@ -5,6 +5,8 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
+    setWindowIcon(QIcon(":/Icon/QtKMC.png"));
+    
     error.setIcon(QMessageBox::Warning);
     home = QDir::home().absolutePath();
    
@@ -28,9 +30,9 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
     QLabel* endText = new QLabel("End Frame:");
     
     vidCheck = new QCheckBox("Export Video");
-    fpsText = new QLabel("fps:");
+    fpsText = new QLabel("Time Factor:");
     timeFactorBox = new QDoubleSpinBox();
-    timeFactorBox->setRange(MPEG_FRAME_RATE/double(fps),10000);
+    timeFactorBox->setRange(MPEG_FRAME_RATE/double(fps),(totalFrames-1)*MPEG_FRAME_RATE/double(fps));
     timeFactorBox->setValue(1);
     timeFactorBox->setSingleStep(MPEG_FRAME_RATE/double(fps));
     
@@ -84,7 +86,6 @@ void MainWindow::exportVideo()
     int frameSkip = int(timeFactorBox->value()*fps/MPEG_FRAME_RATE);
     char frameMessage[128];
     sprintf(frameMessage, "videos.sh %s %d %d", directoryName, frameSkip, MPEG_FRAME_RATE);
-    
     system(frameMessage); 
 }
 
