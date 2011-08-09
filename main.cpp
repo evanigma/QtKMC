@@ -11,7 +11,7 @@
 int main(int argc, char** argv)
 {    
 	QApplication app(argc, argv);               //application context which holds the program
-    MainWindow window;
+    MainWindow window(0);
 	window.show();                                //make window visible
 
 	return app.exec();                          //run the program!

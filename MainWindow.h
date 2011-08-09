@@ -1,46 +1,20 @@
-#pragma once
-#include <QApplication>
-#include <QCheckBox>
-#include <QFileDialog>
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QMessageBox>
-#include <QProgressBar>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QStyle>
-#include <QWidget>
-#include <string>
+#include <QMainWindow>
+#include <QtGui>
+#include "MainInterface.h"
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
-    Q_OBJECT                            //Required by Qt for signals/slots/etc.
+	Q_OBJECT                    //Required by Qt to allow for signals, slots, etc.
+	
 public:
-    MainWindow(QWidget* parent = 0);
-
+	MainWindow(QWidget *parent);
+	
 public slots:
-    void exportVideo();
-    void save();
-    void fpsStateChange();
-    void setDirectory();
-    
+    void about();
+	
 private:
-    void initKMC();
+    MainInterface* interface;
+    QMenu* helpMenu;
     
-    int MPEG_FRAME_RATE;    
-    char directoryName[512];
-    
-    QString home;    
-    QLineEdit* dirText;
-    QPushButton* dirBtn; 
-    QSpinBox* startBox;
-    QSpinBox* endBox;
-    QCheckBox* vidCheck;
-    QDoubleSpinBox* timeFactorBox;
-    QLabel* fpsText;
-    QProgressBar* saveProgress;
-    QMessageBox error;
+    QAction* aboutAct;	
 };
